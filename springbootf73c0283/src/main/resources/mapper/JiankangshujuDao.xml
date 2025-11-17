@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.dao.JiankangshujuDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.entity.JiankangshujuEntity" id="jiankangshujuMap">
+        <result property="huanzhexingming" column="huanzhexingming"/>
+        <result property="shijian" column="shijian"/>
+        <result property="shengao" column="shengao"/>
+        <result property="tizhong" column="tizhong"/>
+        <result property="zuoyanshili" column="zuoyanshili"/>
+        <result property="youyanshili" column="youyanshili"/>
+        <result property="xuetang" column="xuetang"/>
+        <result property="shuzhangya" column="shuzhangya"/>
+        <result property="shousuoya" column="shousuoya"/>
+        <result property="huanzhezhanghao" column="huanzhezhanghao"/>
+        <result property="nianling" column="nianling"/>
+        <result property="xingbie" column="xingbie"/>
+        <result property="baogaotupian" column="baogaotupian"/>
+    </resultMap>
+
+	<select id="selectListVO"
+		resultType="com.entity.vo.JiankangshujuVO" >
+		SELECT * FROM jiankangshuju  jiankangshuju         
+        <where> 1=1 ${ew.sqlSegment}</where>
+	</select>
+	
+	<select id="selectVO"
+		resultType="com.entity.vo.JiankangshujuVO" >
+		SELECT  jiankangshuju.* FROM jiankangshuju  jiankangshuju 	
+ 		<where> 1=1 ${ew.sqlSegment}</where>
+	</select>
+
+    <select id="selectListView"
+		resultType="com.entity.view.JiankangshujuView" >
+
+		SELECT  jiankangshuju.* FROM jiankangshuju  jiankangshuju 	        
+        <where> 1=1 ${ew.sqlSegment}</where>
+	</select>
+	
+	<select id="selectView"
+		resultType="com.entity.view.JiankangshujuView" >
+		SELECT * FROM jiankangshuju  jiankangshuju <where> 1=1 ${ew.sqlSegment}</where>
+	</select>
+	
+
+    <select id="selectValue" resultType="map" >
+        SELECT ${params.xColumn}, ROUND(sum(${params.yColumn}),1) total FROM jiankangshuju
+        <where> 1=1 ${ew.sqlSegment}</where>
+        group by ${params.xColumn}
+    </select>
+
+    <select id="selectTimeStatValue" resultType="map" >
+        <if test = 'params.timeStatType == "日"'>
+                SELECT DATE_FORMAT(${params.xColumn},'%Y-%m-%d') ${params.xColumn}, sum(${params.yColumn}) total FROM jiankangshuju
+                <where> 1=1 ${ew.sqlSegment}</where>
+                group by DATE_FORMAT(${params.xColumn},'%Y-%m-%d')
+        </if>
+        <if test='params.timeStatType == "周"'>
+                -- 1、按年和周数值分组
+                -- 2、先按年降序，再按周降序
+                SELECT CONCAT(YEAR(${params.xColumn}), '年 第', WEEK(${params.xColumn}, 1), '周') AS ${params.xColumn}, SUM(${params.yColumn}) total FROM jiankangshuju
+                <where> 1=1 ${ew.sqlSegment}</where>
+                GROUP BY YEAR(${params.xColumn}), WEEK(${params.xColumn}, 1)
+                ORDER BY YEAR(${params.xColumn}) DESC, WEEK(${params.xColumn}, 1) DESC
+        </if>
+        <if test = 'params.timeStatType == "月"'>
+                SELECT DATE_FORMAT(${params.xColumn},'%Y-%m') ${params.xColumn}, sum(${params.yColumn}) total FROM jiankangshuju
+                <where> 1=1 ${ew.sqlSegment}</where>
+                group by DATE_FORMAT(${params.xColumn},'%Y-%m')
+        </if>
+        <if test='params.timeStatType == "季"'>
+                SELECT CONCAT(YEAR(${params.xColumn}), ' - ', ELT(QUARTER(${params.xColumn}), '第一季度', '第二季度', '第三季度', '第四季度')) as ${params.xColumn}, sum(${params.yColumn}) total FROM orders
+                <where> 1=1 ${ew.sqlSegment}</where>
+                group by CONCAT(YEAR(${params.xColumn}), ' - ', ELT(QUARTER(${params.xColumn}), '第一季度', '第二季度', '第三季度', '第四季度'))
+        </if>
+        <if test = 'params.timeStatType == "年"'>
+                SELECT DATE_FORMAT(${params.xColumn},'%Y') ${params.xColumn}, sum(${params.yColumn}) total FROM jiankangshuju
+                <where> 1=1 ${ew.sqlSegment}</where>
+                group by DATE_FORMAT(${params.xColumn},'%Y')
+        </if>
+    </select>
+
+    <select id="selectGroup" resultType="map" >
+        SELECT ${params.column} , count(1) total FROM jiankangshuju
+        <where> 1=1 ${ew.sqlSegment}</where>
+        group by ${params.column}
+    </select>
+
+    <select id="xuetangSectionStat" resultType="map" >
+        SELECT '低血糖' as xuetang,case when t.低血糖 is null then 0 else t.低血糖 end total
+        from
+        (select
+        sum(case when xuetang &lt;= 3.9 then 1 else 0 end) as 低血糖,        sum(case when xuetang >= 3.9 and xuetang &lt;= 6.1 then 1 else 0 end) as 正常,        sum(case when xuetang >= 6.1 then 1 else 0 end) as 高血糖        from jiankangshuju
+        <where> 1=1 ${ew.sqlSegment}</where>
+        ) t
+        union all
+        SELECT '正常' as xuetang,case when t.正常 is null then 0 else t.正常 end total
+        from
+        (select
+        sum(case when xuetang &lt;= 3.9 then 1 else 0 end) as 低血糖,        sum(case when xuetang >= 3.9 and xuetang &lt;= 6.1 then 1 else 0 end) as 正常,        sum(case when xuetang >= 6.1 then 1 else 0 end) as 高血糖        from jiankangshuju
+        <where> 1=1 ${ew.sqlSegment}</where>
+        ) t
+        union all
+        SELECT '高血糖' as xuetang,case when t.高血糖 is null then 0 else t.高血糖 end total
+        from
+        (select
+        sum(case when xuetang &lt;= 3.9 then 1 else 0 end) as 低血糖,        sum(case when xuetang >= 3.9 and xuetang &lt;= 6.1 then 1 else 0 end) as 正常,        sum(case when xuetang >= 6.1 then 1 else 0 end) as 高血糖        from jiankangshuju
+        <where> 1=1 ${ew.sqlSegment}</where>
+        ) t
+    </select>
+    <select id="shousuoyaSectionStat" resultType="map" >
+        SELECT '低血压' as shousuoya,case when t.低血压 is null then 0 else t.低血压 end total
+        from
+        (select
+        sum(case when shousuoya &lt;= 90 then 1 else 0 end) as 低血压,        sum(case when shousuoya >= 90 and shousuoya &lt;= 140 then 1 else 0 end) as 正常,        sum(case when shousuoya >= 140 then 1 else 0 end) as 高血压        from jiankangshuju
+        <where> 1=1 ${ew.sqlSegment}</where>
+        ) t
+        union all
+        SELECT '正常' as shousuoya,case when t.正常 is null then 0 else t.正常 end total
+        from
+        (select
+        sum(case when shousuoya &lt;= 90 then 1 else 0 end) as 低血压,        sum(case when shousuoya >= 90 and shousuoya &lt;= 140 then 1 else 0 end) as 正常,        sum(case when shousuoya >= 140 then 1 else 0 end) as 高血压        from jiankangshuju
+        <where> 1=1 ${ew.sqlSegment}</where>
+        ) t
+        union all
+        SELECT '高血压' as shousuoya,case when t.高血压 is null then 0 else t.高血压 end total
+        from
+        (select
+        sum(case when shousuoya &lt;= 90 then 1 else 0 end) as 低血压,        sum(case when shousuoya >= 90 and shousuoya &lt;= 140 then 1 else 0 end) as 正常,        sum(case when shousuoya >= 140 then 1 else 0 end) as 高血压        from jiankangshuju
+        <where> 1=1 ${ew.sqlSegment}</where>
+        ) t
+    </select>
+
+
+
+</mapper>
