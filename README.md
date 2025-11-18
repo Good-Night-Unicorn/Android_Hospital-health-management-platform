@@ -1,15 +1,14 @@
 ## 基于Android的医院健康管理平台的设计与实现(源代码+LW+PPT+数据库)
 **毕业设计所有选题地址： https://github.com/Good-Night-Unicorn?tab=repositories**
 
-**完整代码收费可以加微信FY-yuanma咨询接毕业设计论文**
+**完整代码收费可以加QQ：3042127848 咨询接毕业设计论文**
 
-**作者QQ：3042127848 微信：FY-yuanma (支持修改、部署调试、支持代做毕设)**
+**作者QQ：3042127848 备用q：2777345948 (支持修改、部署调试、支持代做毕设)**
 
 **接网站建设、小程序、H5、APP、各种系统等**
 
 **选题+开题报告+任务书+程序定制+安装调试+论文+答辩ppt都可以做**
 **详细视频演示**
-
 **请联系我获取更详细的演示视频**
 <img width="1210" height="526" alt="图片" src="https://github.com/user-attachments/assets/b11582c1-eff3-4fbd-acc1-3c84cde81ac5" />
 <img width="1210" height="662" alt="图片" src="https://github.com/user-attachments/assets/004b1e3f-bd2c-405e-9fd8-1179d0729f9d" />
